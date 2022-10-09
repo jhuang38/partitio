@@ -9,7 +9,8 @@ setup(
         "Flask-SQLAlchemy==2.5.1",
         "psycopg2==2.9.3",
         "itsdangerous==2.1.1",
-        "gunicorn==20.1.0"
+        "gunicorn==20.1.0",
+        "requests==2.27.1"
     ],
     python_requires="==3.10.1"
 )
