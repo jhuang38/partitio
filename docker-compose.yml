@@ -17,3 +17,10 @@ services:
       - ${SERVER_PORT}:${SERVER_PORT}
     volumes:
       - ./server:/app
+  db:
+    build:
+      context: './db/'
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db:/app

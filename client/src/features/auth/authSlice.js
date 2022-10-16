@@ -7,7 +7,7 @@ export const createNewUser = createAsyncThunk(
     'auth/createNewUser',
     async (body) => {
         console.log({body})
-        const res = await authAPI.sendRequest('/api/auth/', 'POST', {}, body);
+        const res = await authAPI.sendRequest('/api/auth/create-user', 'POST', {}, body);
         console.log(res);
     }
 );

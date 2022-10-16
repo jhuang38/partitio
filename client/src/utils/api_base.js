@@ -10,20 +10,20 @@ export default class API {
     }
 
     async sendRequest(url, method, params, body) {
-        console.log({url, method, params, body});
-        console.log(`${this.base_url}${url}`)
         let res;
+        const request_url = `${this.base_url}${url}` + new URLSearchParams(params);
         try {
-            res = await fetch(`${this.base_url}${url}`, {
-                body,
+            res = await fetch(request_url, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body),
                 method
             });
         } catch(e) {
             console.log(e);
         }
-        console.log(res);
         const json_body = await res.json();
-        console.log({json_body})
         return json_body;
     }
 }
