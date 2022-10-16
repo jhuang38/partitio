@@ -10,7 +10,8 @@ setup(
         "psycopg2==2.9.3",
         "itsdangerous==2.1.1",
         "gunicorn==20.1.0",
-        "requests==2.27.1"
+        "requests==2.27.1",
+        "flask-cors==3.0.10"
     ],
     python_requires="==3.10.1"
 )

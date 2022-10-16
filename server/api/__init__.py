@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint
+from flask_cors import CORS
 import logging
 import os
 from api.auth import auth
@@ -7,6 +8,8 @@ services = Blueprint(name='api', import_name='api', url_prefix='/api')
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app)
 
     gunicorn_logger = logging.getLogger('gunicorn.error')
     app.logger.handlers = gunicorn_logger.handlers
