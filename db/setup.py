@@ -15,5 +15,4 @@ setup(
         "flask-cors==3.0.10",
         "alembic==1.8.1"
     ],
-    python_requires="==3.10.1"
 )
