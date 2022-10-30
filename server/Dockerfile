@@ -1,8 +1,15 @@
 FROM python:3.10.1
 
+RUN apt-get -y update
+RUN apt-get -y install git
+
 WORKDIR /app
 
 COPY . .
+
+RUN pip install --upgrade setuptools
+
+RUN ls
 
 RUN ["python", "setup.py", "install"]
 

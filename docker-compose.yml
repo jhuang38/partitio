@@ -13,10 +13,13 @@ services:
       context: './server/'
     environment:
       - SERVER_PORT
+      - DB_URI
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     volumes:
       - ./server:/app
+    links:
+      - db
   db:
     build:
       context: './db/'
