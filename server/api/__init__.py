@@ -1,12 +1,15 @@
 from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from sqlalchemy import create_engine
 from flask_cors import CORS
+from models import User
 
 import logging
 import os
 
 db = SQLAlchemy()
+login_manager = LoginManager()
 # engine = create_engine(os.environ.get('DB_URI'))
 
 from api.auth import auth
@@ -32,6 +35,10 @@ def create_app():
     app.register_blueprint(services)
 
     db.init_app(app)
+    login_manager.init_app(app)
 
     return app
 
+@login_manager.user_loader
+def load_user(uid):
+    return User.query.get(uid)

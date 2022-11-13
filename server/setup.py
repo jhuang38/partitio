@@ -14,6 +14,7 @@ setup(
         "requests==2.27.1",
         "flask-cors==3.0.10",
         "flask-bcrypt==1.0.1",
+        "flask-login==0.6.2"
     ],
     python_requires="==3.10.1"
 )

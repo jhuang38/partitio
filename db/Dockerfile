@@ -13,3 +13,5 @@ WORKDIR /app
 COPY . .
 # RUN pip install alembic 1.8.1
 RUN python3 setup.py install
+
+RUN cd models && alembic upgrade head

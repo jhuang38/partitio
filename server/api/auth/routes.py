@@ -8,12 +8,24 @@ def create_new_user():
     email = json_body["email"]
     password = json_body["password"]
     print(username, email, password)
-    auth_service.create_user(username=username, email=email, password=password)
-    return jsonify(status='success')
+    status = auth_service.create_user(username=username, email=email, password=password)
+    return jsonify(status)
 
 
 @auth.route('/test', methods=['GET', 'POST'])
 def test():
-    print('hi')
-    return jsonify({"hi":"hi"})
+    json_body = request.get_json()
+    username = json_body["username"]
+    email = json_body["email"]
+    password = json_body["password"]
+    user_exists = auth_service.user_exists(username, email)
+    return jsonify(user_exists=user_exists)
+
+@auth.route('/login', methods=['GET'])
+def login():
+    username = request.args.get('username')
+    email = request.args.get('email')
+    password = request.args.get('password')
+    login_status = auth_service.login(username, email, password)
+    pass
 
