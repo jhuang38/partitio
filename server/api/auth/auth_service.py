@@ -1,6 +1,7 @@
 from models import User, session_maker
 from uuid import uuid4
 from datetime import datetime
+from flask_login import login_user
 
 class Auth:
     def __init__(self, db, bcrypt):
@@ -33,7 +34,7 @@ class Auth:
 
     def create_user(self, username, email, password):
         if self.user_exists(username, email):
-            return dict(status='failure', error='Username already exists in database')
+            return dict(status='failure', error='Username already exists in database.')
         hashed_password = self.generate_password_hash(password)
         uid = str(self.generate_uuid())
         user = User(uid = uid, username = username, email = email, password = hashed_password, created_time = datetime.now())
@@ -43,6 +44,28 @@ class Auth:
         return dict(status='success', error=None)
 
     def login_user(self, username, email, password):
-        user = self.db.session.query(User.username == username).first()
+        user = self.db.session.query(User).filter(User.username == username).first()
+        auth_status = 'failed'
+        auth_error = 'Auth failed - check username and/or password credentials.'
+        auth_user = {}
+        if user and self.check_passwords(input_password=password, hashed_password=user.password):
+            auth_status = 'success'
+            auth_error ='None.'
+            auth_user = {
+                'username': user.username,
+                'email': user.email,
+                'uid': user.uid
+            }
+            login_user(user, remember=True)
 
-        pass
+        return dict(auth_status=auth_status, auth_error=auth_error, auth_user=auth_user)
+    
+    def get_user_by_name(self, username):
+        return self.db.session.query(User).filter(User.username == username).first()
+    
+    def get_user_status(self, username):
+        user = self.db.session.query(User).filter(User.username == username).first()
+        print("is active:", user.is_active)
+        print("is authenticated:", user.is_authenticated)
+        return dict(active=user.is_active, authenticated=user.is_authenticated)
+

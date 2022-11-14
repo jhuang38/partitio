@@ -6,11 +6,26 @@ import { authAPI } from './authAPI';
 export const createNewUser = createAsyncThunk(
     'auth/createNewUser',
     async (body) => {
-        console.log({body})
-        const res = await authAPI.sendRequest('/api/auth/create-user', 'POST', {}, body);
-        console.log(res);
+        const res = await authAPI.sendRequest('/api/auth/create_user', 'POST', {}, body);
+        return res
     }
 );
+
+export const loginUser = createAsyncThunk(
+    'auth/loginUser',
+    async (params) => {
+        const res = await authAPI.sendRequest('/api/auth/login', 'GET', params, null)
+        return res
+    }
+)
+
+export const tokenLogin = createAsyncThunk(
+    'auth/tokenLogin',
+    async (params) => {
+        const res = await authAPI.sendRequest('/api/auth/login', 'GET', params, null, localStorage.getItem('token'))
+        return res;
+    }
+)
 
 const initialState = {
     user: {},
@@ -21,14 +36,21 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-
+        updateUserState: (state, action) => {
+            state.user = action.payload.auth_user
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(createNewUser.fulfilled, (state, action) => {
             console.log({state, action})
         })
+        .addCase(loginUser.fulfilled, (state, action) => {
+            console.log({state, action})
+        })
     }
 });
+
+export const {updateUserState} = authSlice.actions;
 
 
 export default authSlice.reducer;

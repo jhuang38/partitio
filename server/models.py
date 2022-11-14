@@ -1,6 +1,7 @@
 from sqlalchemy import Column, DateTime, String, create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from flask_login import UserMixin
+import jwt
 import datetime
 import os
 
@@ -17,4 +18,9 @@ class User(Base, UserMixin):
     def __repr__(self):
         return f"{self.uid} - {self.username} - {self.email}"
 
+    def get_id(self):
+        return self.uid
+
 session_maker = sessionmaker(bind=create_engine(os.environ.get('DB_URI')))
+
+

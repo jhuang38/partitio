@@ -9,17 +9,27 @@ export default class API {
         return this.base_url;
     }
 
-    async sendRequest(url, method, params, body) {
+    async sendRequest(url, method, params, body, token) {
         let res;
-        const request_url = `${this.base_url}${url}` + new URLSearchParams(params);
+        if (!token) {
+            token = ''
+        }
+        const request_url = `${this.base_url}${url}?` + new URLSearchParams(params);
+        const req = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+                'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
+                'Authorization': `Bearer ${token}`
+            },
+            method
+        }
+        if (body) {
+            req.body = JSON.stringify(body)
+        }
         try {
-            res = await fetch(request_url, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(body),
-                method
-            });
+            res = await fetch(request_url, req);
         } catch(e) {
             console.log(e);
         }
