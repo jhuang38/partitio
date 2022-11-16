@@ -1,7 +1,7 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Routes, Route, Navigate,useNavigate} from 'react-router-dom';
 import Login from './components/Login';
-import { Typography } from '@mui/material';
+import { Drawer, Typography } from '@mui/material';
 import Signup from './components/Signup';
 import Dashboard from './components/Dashboard'
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,21 +12,25 @@ function App() {
   const dispatch = useDispatch();
   const user = useSelector(state => state.auth.user)
   useEffect(() => {
-    dispatch(tokenLogin())
-    .then(res => {
-      console.log(res)
-      const auth_status = res.payload.auth_status;
-      if (auth_status === 'success') {
-        navigate('/home')
-      } else {
-        navigate('/login')        
-      }
-      return res.payload
-    })
-    .catch(e => {
-      navigate('/login')
-    })
-  }, [user.uid])
+    if (!user) {
+      dispatch(tokenLogin())
+      .then(res => {
+        console.log(res)
+        const auth_status = res.payload.auth_status;
+        if (auth_status === 'success') {
+          navigate('/home')
+        } else {
+          navigate('/login')        
+        }
+        return res.payload
+      })
+      .catch(e => {
+        navigate('/login')
+      })
+    }
+    
+  }, [])
+  
   return (
     <>
       <main>
@@ -37,6 +41,7 @@ function App() {
           <Route path='/home' element = {<Dashboard/>}/>
         </Routes>
       </main>
+      
       
     </>
   );

@@ -56,7 +56,8 @@ class Auth:
                 'email': user.email,
                 'uid': user.uid
             }
-            login_user(user, remember=True)
+            login_status = login_user(user, remember=True, force=True)
+            user.set_auth_status(login_status)
 
         return dict(auth_status=auth_status, auth_error=auth_error, auth_user=auth_user)
     

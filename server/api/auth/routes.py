@@ -1,6 +1,6 @@
 from api.auth import auth, auth_service
 from flask import jsonify, request
-from flask_login import login_user
+from flask_login import login_user, logout_user
 from models import User
 import jwt
 import datetime
@@ -37,27 +37,31 @@ def login():
     email = request.args.get('email')
     password = request.args.get('password')
     auth_headers = request.headers.get('Authorization', '').split()
-    print(auth_headers)
     if len(auth_headers) == 2:
-        token = jwt.decode(auth_headers[1], os.environ.get('FLASK_SECRET_KEY'), algorithms='HS256')
-        jwt_username = token['username']
-        jwt_email = token['email']
-        jwt_uid = token['uid']
-        user = auth_service.get_user_by_name(jwt_username)
-        login_result = login_user(user=user, remember=True)
-        if login_result:
-            print('token login success')
-            return jsonify({
-            'auth_status': 'success',
-            'auth_error': 'None.',
-            'auth_user': {
-                'username': jwt_username,
-                'email': jwt_email,
-                'uid': jwt_uid
-            },
-            'token': token
-            })
-
+        try:
+            token = jwt.decode(auth_headers[1], os.environ.get('FLASK_SECRET_KEY'), algorithms='HS256')
+            jwt_username = token['username']
+            jwt_email = token['email']
+            jwt_uid = token['uid']
+            user = auth_service.get_user_by_name(jwt_username)
+            login_result = login_user(user=user, remember=True, force=True)
+            if login_result:
+                return jsonify({
+                'auth_status': 'success',
+                'auth_error': 'None.',
+                'auth_user': {
+                    'username': jwt_username,
+                    'email': jwt_email,
+                    'uid': jwt_uid
+                },
+                'token': token
+                })
+            else:
+                logout_user()
+            user.set_auth_status(login_result)
+        except Exception as e:
+            print('exception', e)
+            logout_user()
     login_status = auth_service.login_user(username, email, password)
     if login_status['auth_status'] == 'success':
         token = jwt.encode({'username': login_status['auth_user']['username'], 'uid': login_status['auth_user']['uid'], 'email': login_status['auth_user']['email'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)}, os.environ.get('FLASK_SECRET_KEY'), algorithm='HS256')

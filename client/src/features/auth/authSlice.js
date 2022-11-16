@@ -28,7 +28,7 @@ export const tokenLogin = createAsyncThunk(
 )
 
 const initialState = {
-    user: {},
+    user: null,
     loading: 'idle' // loading: 'idle' | 'pending' | 'succeeded' | 'failed'
 }
 

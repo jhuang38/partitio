@@ -11,34 +11,6 @@ import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-@login_manager.request_loader
-def load_user(request):
-    # try login with token first
-    auth_headers = request.headers.get('Authorization', '').split()
-    print(auth_headers)
-    if len(auth_headers) != 2:
-        return None
-    try:
-        token = auth_headers[1]
-        data = jwt.decode(token, os.environ.get('FLASK_SECRET_KEY'))
-        username = data['username']
-        uid = data['uid']
-        user = db.session.query(User).filter_by((User.username == username) & (User.uid == uid)).first()
-        if user:
-            return user
-
-    except jwt.ExpiredSignatureError:
-        return None
-    except (jwt.InvalidTokenError, Exception) as e:
-        return None
-    # try regular login
-    username_arg = request.args.get('username')
-    pwd_arg = request.args.get('password')
-    user = db.session.query(User).filter_by(User.username == username_arg).first()
-    if check_password_hash(pw_hash=user.password, password=pwd_arg):
-        return user
-    
-    return None
 
 from api.auth import auth
 
@@ -65,3 +37,36 @@ def create_app():
     login_manager.init_app(app)
 
     return app
+
+
+@login_manager.request_loader
+def load_user(request):
+    # try login with token first
+    auth_headers = request.headers.get('Authorization', '').split()
+    if len(auth_headers) != 2:
+        return None
+    try:
+        token = auth_headers[1]
+        data = jwt.decode(token, os.environ.get('FLASK_SECRET_KEY'), algorithms='HS256')
+        username = data['username']
+        uid = data['uid']
+        user = db.session.query(User).filter((User.username == username) & (User.uid == uid)).first()
+        if user:
+            user.set_auth_status(True)
+            return user
+
+    except jwt.ExpiredSignatureError:
+        return None
+    except (jwt.InvalidTokenError, Exception) as e:
+        print(e)
+        return None
+    # try regular login
+    username_arg = request.args.get('username')
+    pwd_arg = request.args.get('password')
+    user = db.session.query(User).filter_by(User.username == username_arg).first()
+    if check_password_hash(pw_hash=user.password, password=pwd_arg):
+        user.set_auth_status(True)
+        return user
+    
+    user.set_auth_status(False)
+    return None
