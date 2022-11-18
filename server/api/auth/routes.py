@@ -44,7 +44,7 @@ def login():
             jwt_email = token['email']
             jwt_uid = token['uid']
             user = auth_service.get_user_by_name(jwt_username)
-            login_result = login_user(user=user, remember=True, force=True)
+            login_result = login_user(user=user, remember=True)
             if login_result:
                 return jsonify({
                 'auth_status': 'success',
