@@ -14,10 +14,6 @@ class User(Base, UserMixin):
     password = Column(String(100))
     created_time = Column(DateTime)
 
-    def __init__(self):
-        self.active_status = True
-        self.auth_status = False
-
     @reconstructor
     def init_on_load(self):
         self.auth_status = False
@@ -45,6 +41,7 @@ class User(Base, UserMixin):
         self.active_status = state
     
     def set_auth_status(self, state:bool):
+        
         self.auth_status = state
 
 

@@ -1,7 +1,8 @@
 from models import User, session_maker
 from uuid import uuid4
 from datetime import datetime
-from flask_login import login_user
+from flask_login import login_user, logout_user, current_user
+from flask import session
 
 class Auth:
     def __init__(self, db, bcrypt):
@@ -49,6 +50,7 @@ class Auth:
         auth_error = 'Auth failed - check username and/or password credentials.'
         auth_user = {}
         if user and self.check_passwords(input_password=password, hashed_password=user.password):
+            print(current_user)
             auth_status = 'success'
             auth_error ='None.'
             auth_user = {
@@ -58,6 +60,7 @@ class Auth:
             }
             login_status = login_user(user, remember=True)
             user.set_auth_status(login_status)
+            print(current_user, 'current user after login')
 
         return dict(auth_status=auth_status, auth_error=auth_error, auth_user=auth_user)
     
@@ -65,8 +68,15 @@ class Auth:
         return self.db.session.query(User).filter(User.username == username).first()
     
     def get_user_status(self, username):
-        user = self.db.session.query(User).filter(User.username == username).first()
-        print("is active:", user.is_active)
-        print("is authenticated:", user.is_authenticated)
-        return dict(active=user.is_active, authenticated=user.is_authenticated)
+        print("is active:", current_user.is_active)
+        print("is authenticated:", current_user.is_authenticated)
+        return dict(active=current_user.is_active, authenticated=current_user.is_authenticated)
+
+    def logoff_user(self):
+        logout_user()
+        res = {
+            'status': 'success',
+            'error': None
+        }
+        return dict(res)
 
