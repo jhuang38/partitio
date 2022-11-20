@@ -13,14 +13,24 @@ services:
       context: './server/'
     environment:
       - SERVER_PORT
+      - DB_URI
+      - FLASK_SECRET_KEY
     ports:
       - ${SERVER_PORT}:${SERVER_PORT}
     volumes:
       - ./server:/app
+    links:
+      - db
   db:
     build:
       context: './db/'
+    environment:
+      - DB_URI
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - DB_PORT
     ports:
-      - 5432:5432
+      - ${DB_PORT}:${DB_PORT}
     volumes:
       - ./db:/app

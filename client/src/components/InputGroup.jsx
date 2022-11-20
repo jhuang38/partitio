@@ -1,3 +1,5 @@
+import React from "react"
+
 export default function InputGroup({input_name='', input_type='text', input_id='', input_placeholder='', input_ref=null}) {
     return (
         <div className = 'inputgroup'>

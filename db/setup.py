@@ -13,7 +13,7 @@ setup(
         "gunicorn==20.1.0",
         "requests==2.27.1",
         "flask-cors==3.0.10",
+        "flask-login==0.6.2",
         "alembic==1.8.1"
     ],
-    python_requires="==3.10.1"
 )
