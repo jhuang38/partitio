@@ -1,6 +1,6 @@
 from api.auth import auth, auth_service
 from flask import jsonify, request
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required, current_user
 from models import User
 import jwt
 import datetime
@@ -25,10 +25,7 @@ def test():
     user_exists = auth_service.user_exists(username, email)
     return jsonify(user_exists=user_exists)
 
-@auth.route('/test_session', methods=['GET'])
-def test_session():
-    username = request.args.get('username')
-    return jsonify(auth_service.get_user_status(username))
+
 
 @auth.route('/login', methods=['GET'])
 def login():
@@ -46,6 +43,7 @@ def login():
             user = auth_service.get_user_by_name(jwt_username)
             login_result = login_user(user=user, remember=True)
             if login_result:
+                print('token login')
                 return jsonify({
                 'auth_status': 'success',
                 'auth_error': 'None.',
@@ -64,6 +62,7 @@ def login():
             logout_user()
     login_status = auth_service.login_user(username, email, password)
     if login_status['auth_status'] == 'success':
+        print('regular login')
         token = jwt.encode({'username': login_status['auth_user']['username'], 'uid': login_status['auth_user']['uid'], 'email': login_status['auth_user']['email'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)}, os.environ.get('FLASK_SECRET_KEY'), algorithm='HS256')
         return jsonify({
             'auth_status': login_status['auth_status'],
@@ -73,3 +72,28 @@ def login():
         })
     return jsonify(login_status)
 
+@auth.route('/test_session', methods=['GET'])
+def test_session():
+    username = request.args.get('username')
+    return jsonify(test=auth_service.get_user_status(username))
+
+@auth.route('/current_user', methods=['GET'])
+def get_current_user():
+    print(current_user)
+    print(current_user.is_anonymous)
+    return jsonify(is_auth=current_user.is_authenticated)
+
+@auth.route('/logout', methods=['POST'])
+@login_required
+def logout_user():
+    try:
+        response = auth_service.logoff_user()
+        print(current_user.is_authenticated)
+        return jsonify(response)
+    except Exception as e:
+        response = {
+            'status': 'fail',
+            'error': str(e)
+        }
+        return jsonify(response)
+    
