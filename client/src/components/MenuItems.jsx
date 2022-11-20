@@ -7,9 +7,10 @@ export default function MenuItems({items = [], actionMap = []}) {
             {
             items.map((text, index) => 
                 <ListItem key = {index} sx = {{
-                    minWidth: 200
+                    minWidth: 200,
+                    minHeight: 10,
+                    padding: 0
                 }}
-                disablePadding={true}
                 >
                     <ListItemButton onClick = {actionMap[index]}>
                         <ListItemText>

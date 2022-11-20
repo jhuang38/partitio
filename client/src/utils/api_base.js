@@ -12,7 +12,7 @@ export default class API {
     async sendRequest(url, method, params, body, token) {
         let res;
         if (!token) {
-            token = ''
+            token = localStorage.getItem('token') || ''
         }
         const request_url = `${this.base_url}${url}?` + new URLSearchParams(params);
         const req = {

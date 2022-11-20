@@ -27,6 +27,14 @@ export const tokenLogin = createAsyncThunk(
     }
 )
 
+export const logOff = createAsyncThunk(
+    'auth/logoff',
+    async () => {
+        const res = await authAPI.sendRequest('/api/auth/logout', 'POST', {}, {}, '')
+        return res
+    }
+)
+
 const initialState = {
     user: null,
     loading: 'idle' // loading: 'idle' | 'pending' | 'succeeded' | 'failed'
@@ -46,6 +54,11 @@ const authSlice = createSlice({
         })
         .addCase(loginUser.fulfilled, (state, action) => {
             console.log({state, action})
+        })
+        .addCase(logOff.fulfilled, (state, action) => {
+            console.log({state, action})
+            localStorage.removeItem('token')
+            state.user = null
         })
     }
 });

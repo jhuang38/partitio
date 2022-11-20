@@ -29,7 +29,7 @@ function App() {
       })
     }
     
-  }, [])
+  }, [user])
   
   return (
     <>
@@ -38,7 +38,9 @@ function App() {
           <Route path='/' element={<Navigate to ='/login'/>}/>
           <Route path='/login' element = {<Login/>}/>
           <Route path='/signup' element = {<Signup/>}/>
-          <Route path='/home' element = {<Dashboard/>}/>
+          <Route path='/home' element = {<Dashboard render = 'home'/>}/>
+          <Route path='/profile' element = {<Dashboard render = 'profile'/>}/>
+          <Route path='/collection' element = {<Dashboard render = 'collection'/>}/>
         </Routes>
       </main>
       
