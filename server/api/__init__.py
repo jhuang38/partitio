@@ -14,6 +14,7 @@ login_manager = LoginManager()
 login_manager.session_protection = "strong"
 
 from api.auth import auth
+from api.collections import collections
 
 services = Blueprint(name='api', import_name='api', url_prefix='/api')
 
@@ -22,6 +23,7 @@ def create_app():
     # set configs
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URI')
     app.config['SECRET_KEY']  = os.environ.get('FLASK_SECRET_KEY')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     CORS(app)
 
@@ -32,7 +34,9 @@ def create_app():
 
     # register blueprints
     services.register_blueprint(auth)
+    services.register_blueprint(collections)
     app.register_blueprint(services)
+    
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -80,7 +84,9 @@ def load_user_req(request):
             print('regular login - loader')
             user.set_auth_status(True)
             return user
+        
         user.set_auth_status(False)
+    print('failed')
     return None
 
 @login_manager.user_loader

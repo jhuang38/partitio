@@ -6,7 +6,7 @@ import { authAPI } from './authAPI';
 export const createNewUser = createAsyncThunk(
     'auth/createNewUser',
     async (body) => {
-        const res = await authAPI.sendRequest('/api/auth/create_user', 'POST', {}, body);
+        const res = await authAPI.sendRequest('create_user', 'POST', {}, body);
         return res
     }
 );
@@ -14,7 +14,7 @@ export const createNewUser = createAsyncThunk(
 export const loginUser = createAsyncThunk(
     'auth/loginUser',
     async (params) => {
-        const res = await authAPI.sendRequest('/api/auth/login', 'GET', params, null)
+        const res = await authAPI.sendRequest('login', 'GET', params, null)
         return res
     }
 )
@@ -22,7 +22,7 @@ export const loginUser = createAsyncThunk(
 export const tokenLogin = createAsyncThunk(
     'auth/tokenLogin',
     async (params) => {
-        const res = await authAPI.sendRequest('/api/auth/login', 'GET', params, null, localStorage.getItem('token'))
+        const res = await authAPI.sendRequest('login', 'GET', params, null, localStorage.getItem('token'))
         return res;
     }
 )
@@ -30,7 +30,7 @@ export const tokenLogin = createAsyncThunk(
 export const logOff = createAsyncThunk(
     'auth/logoff',
     async () => {
-        const res = await authAPI.sendRequest('/api/auth/logout', 'POST', {}, {}, '')
+        const res = await authAPI.sendRequest('logout', 'POST', {}, {}, '')
         return res
     }
 )

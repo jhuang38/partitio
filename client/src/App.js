@@ -6,6 +6,7 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard'
 import { useDispatch, useSelector } from 'react-redux';
 import { tokenLogin } from './features/auth/authSlice';
+import {updateUserState} from './features/auth/authSlice'
 
 function App() {
   const navigate = useNavigate();
@@ -15,9 +16,9 @@ function App() {
     if (!user) {
       dispatch(tokenLogin())
       .then(res => {
-        console.log(res)
         const auth_status = res.payload.auth_status;
         if (auth_status === 'success') {
+          dispatch(updateUserState(res.payload))
           navigate('/home')
         } else {
           navigate('/login')        

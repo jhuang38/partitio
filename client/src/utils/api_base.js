@@ -1,20 +1,18 @@
 export default class API {
     base_url;
 
-    constructor(base_url) {
+    constructor(base_url='', api_route='') {
         this.base_url = base_url;
+        this.api_route = api_route
+        this.api_url = base_url + api_route
     }
 
-    getBaseUrl() {
-        return this.base_url;
-    }
-
-    async sendRequest(url, method, params, body, token) {
+    async sendRequest(endpoint, method, params, body, token) {
         let res;
         if (!token) {
             token = localStorage.getItem('token') || ''
         }
-        const request_url = `${this.base_url}${url}?` + new URLSearchParams(params);
+        const request_url = `${this.api_url}${endpoint}?` + new URLSearchParams(params);
         const req = {
             headers: {
                 'Content-Type': 'application/json',

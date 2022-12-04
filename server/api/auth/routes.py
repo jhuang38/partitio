@@ -42,6 +42,8 @@ def login():
             jwt_uid = token['uid']
             user = auth_service.get_user_by_name(jwt_username)
             login_result = login_user(user=user, remember=True)
+            user.set_auth_status(login_result)
+            print(user)
             if login_result:
                 print('token login')
                 return jsonify({
@@ -56,10 +58,9 @@ def login():
                 })
             else:
                 logout_user()
-            user.set_auth_status(login_result)
         except Exception as e:
             print('exception', e)
-            logout_user()
+            # logout_user()
     login_status = auth_service.login_user(username, email, password)
     if login_status['auth_status'] == 'success':
         print('regular login')
@@ -88,12 +89,13 @@ def get_current_user():
 def logout_user():
     try:
         response = auth_service.logoff_user()
-        print(current_user.is_authenticated)
+        print('logout success')
         return jsonify(response)
     except Exception as e:
         response = {
             'status': 'fail',
             'error': str(e)
         }
+        print('logout failed')
         return jsonify(response)
     
