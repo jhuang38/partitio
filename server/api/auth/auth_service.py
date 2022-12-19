@@ -24,7 +24,7 @@ class Auth:
     def generate_uuid(self):
         return str(uuid4())
 
-    def user_exists(self, username, email):
+    def user_exists(self, username):
         """
         check for existing username in users
         """
@@ -34,7 +34,7 @@ class Auth:
         return not(user is None)
 
     def create_user(self, username, email, password):
-        if self.user_exists(username, email):
+        if self.user_exists(username):
             return dict(status='failure', error='Username already exists in database.')
         hashed_password = self.generate_password_hash(password)
         uid = str(self.generate_uuid())
@@ -46,11 +46,13 @@ class Auth:
 
     def login_user(self, username, email, password):
         user = self.db.session.query(User).filter(User.username == username).first()
+        login_status = False
+        if user and self.check_passwords(password, user.password):
+            login_status = login_user(user, remember=True)
         auth_status = 'failed'
         auth_error = 'Auth failed - check username and/or password credentials.'
         auth_user = {}
-        if user and self.check_passwords(input_password=password, hashed_password=user.password):
-            print(current_user)
+        if user and login_status:
             auth_status = 'success'
             auth_error ='None.'
             auth_user = {
@@ -58,9 +60,8 @@ class Auth:
                 'email': user.email,
                 'uid': user.uid
             }
-            login_status = login_user(user, remember=True)
-            user.set_auth_status(login_status)
-            print(current_user, 'current user after login')
+        else:
+            print('login failed')
 
         return dict(auth_status=auth_status, auth_error=auth_error, auth_user=auth_user)
     
@@ -68,9 +69,11 @@ class Auth:
         return self.db.session.query(User).filter(User.username == username).first()
     
     def get_user_status(self, username):
-        print("is active:", current_user.is_active)
-        print("is authenticated:", current_user.is_authenticated)
-        return dict(active=current_user.is_active, authenticated=current_user.is_authenticated)
+        user = self.db.session.query(User).filter(User.username == username).first()
+        print(user)
+        print("is active:", user.is_active)
+        print("is authenticated:", user.is_authenticated)
+        return dict(active=user.is_active, authenticated=user.is_authenticated)
 
     def logoff_user(self):
         logout_user()

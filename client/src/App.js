@@ -6,6 +6,19 @@ import Signup from './components/Signup';
 import Dashboard from './components/Dashboard'
 import { useDispatch, useSelector } from 'react-redux';
 import { tokenLogin } from './features/auth/authSlice';
+import {updateUserState} from './features/auth/authSlice'
+
+const NavigateRender = (user, ComponentIfTrue, ComponentIfFalse) => {
+  if (user) {
+    return (
+      <Navigate to = '/home'/>
+    )
+  }
+  return (
+    <Navigate to = '/login'/>
+  )
+
+}
 
 function App() {
   const navigate = useNavigate();
@@ -15,10 +28,10 @@ function App() {
     if (!user) {
       dispatch(tokenLogin())
       .then(res => {
-        console.log(res)
         const auth_status = res.payload.auth_status;
         if (auth_status === 'success') {
-          navigate('/home')
+          dispatch(updateUserState(res.payload))
+          navigate(window.location.pathname || '/home')
         } else {
           navigate('/login')        
         }
@@ -35,12 +48,16 @@ function App() {
     <>
       <main>
         <Routes>
-          <Route path='/' element={<Navigate to ='/login'/>}/>
-          <Route path='/login' element = {<Login/>}/>
-          <Route path='/signup' element = {<Signup/>}/>
-          <Route path='/home' element = {<Dashboard render = 'home'/>}/>
-          <Route path='/profile' element = {<Dashboard render = 'profile'/>}/>
-          <Route path='/collection' element = {<Dashboard render = 'collection'/>}/>
+          <Route path='/' element={!!user? <Navigate to = '/home'/> : <Navigate to = '/login'/>}/>
+          <Route path='/home' element = {!!user? <Dashboard render = 'home'/> : <Navigate to = '/login'/>}/>
+          <Route path='/login' element = {!!user? <Navigate to = '/home'/> : <Login/>}/>
+          <Route path='/signup' element = {!!user? <Navigate to = '/home'/> : <Signup/>}/>
+          
+          <Route path='/profile' element = {!!user? <Dashboard render = 'profile'/> : <Navigate to = '/login'/>}/>
+          <Route path='/collections' element = {!!user? <Dashboard render = 'collection'/> : <Navigate to = '/login'/>}/>
+          <Route path='/' element = {!!user? <Dashboard render = ''/> : <Dashboard render = '' />}/>
+          
+          <Route path = '*' element={!!user? <Navigate to = '/home'/> : <Navigate to = '/login'/>}/>
         </Routes>
       </main>
       
