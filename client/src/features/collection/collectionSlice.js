@@ -17,6 +17,22 @@ export const getUserCollections = createAsyncThunk(
     }
 )
 
+export const editCollection = createAsyncThunk(
+    'collection/edit-collection',
+    async (newCollectionInfo) => {
+        const res = await collectionAPI.sendRequest('edit_collection', 'PUT', {}, newCollectionInfo, localStorage.getItem('token'))
+        return res
+    }
+)
+
+export const deleteCollection = createAsyncThunk(
+    'collection/delete-collection',
+    async (collectionInfo) => {
+        const res = await collectionAPI.sendRequest('delete_collection', 'DELETE', {}, collectionInfo, localStorage.getItem('token'))
+        return res
+    }
+)
+
 
 const initialState = {
     homeCollections: [],
@@ -34,7 +50,23 @@ const collectionSlice = createSlice({
     extraReducers: (builder) => {
         builder.addCase(addCollection.fulfilled, (state, action) => {
             console.log({state, action})
-            state.userCollections.push(action.payload.added)
+            let dataAdded = action.payload.added
+            dataAdded.maintainers = action.payload.maintainers
+            state.userCollections.push(dataAdded)
+        })
+        .addCase(editCollection.fulfilled, (state, action) => {
+            const index = state.userCollections.findIndex((e={}) => e.collection_id === action.payload.data.collection_id)
+            let newUserCollections = [...state.userCollections]
+            newUserCollections[index]= action.payload.data
+            state.userCollections.splice(0, state.userCollections.length)
+            newUserCollections.forEach((e = {}) => {
+                state.userCollections.push(e)
+            })
+            
+            console.log({state, action})
+        })
+        .addCase(deleteCollection.fulfilled, (state, action) => {
+            state.userCollections.splice(state.userCollections.findIndex((c = {}) => c.collection_id === action.payload.data.collection_id), 1)
         })
     }
 })

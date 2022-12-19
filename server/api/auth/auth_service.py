@@ -45,7 +45,6 @@ class Auth:
         return dict(status='success', error=None)
 
     def login_user(self, username, email, password):
-        print('login auth service')
         user = self.db.session.query(User).filter(User.username == username).first()
         login_status = False
         if user and self.check_passwords(password, user.password):
@@ -54,7 +53,6 @@ class Auth:
         auth_error = 'Auth failed - check username and/or password credentials.'
         auth_user = {}
         if user and login_status:
-            print(current_user)
             auth_status = 'success'
             auth_error ='None.'
             auth_user = {

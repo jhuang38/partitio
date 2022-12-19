@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef} from 'react'
 import { TextField } from '@mui/material'
 
-export default function ValidatedTextInput({label = '', validator, innerRef, errorRef, required = false, ...rest}) {
-    const [text, setText] = useState('')
+export default function ValidatedTextInput({label = '', validator, innerRef = {}, errorRef = {}, required = false}) {
+    const [text, setText] = useState(innerRef.current)
+    console.log({text, refvalue: innerRef.current})
     const [error, setError] = useState(false)
     const [errorMsg, setErrorMsg] = useState('')
     const handleChange = (e) => {
@@ -23,6 +24,7 @@ export default function ValidatedTextInput({label = '', validator, innerRef, err
     useEffect(() => {
         errorRef.current = error
     }, [error])
+
     return (
         <TextField
         label = {label}
@@ -30,7 +32,7 @@ export default function ValidatedTextInput({label = '', validator, innerRef, err
         onChange = {handleChange}
         required = {required}
         helperText = {errorMsg}
-        {...rest}
-        >{text}</TextField>
+        value = {text}
+        />
     )
 }

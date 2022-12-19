@@ -20,14 +20,14 @@ export default function Dashboard({render = 'home'}) {
     const [pageHeading, setPageHeading] = useState('Home')
     useEffect(() => {
         switch(render) {
-            case 'collection':
-                setPageHeading('Collections')
+            case 'collections':
+                setPageHeading(() => 'Collections')
                 break
             case 'profile':
-                setPageHeading('Profile')
+                setPageHeading(() => 'Profile')
                 break
             default:
-                setPageHeading('Home')
+                setPageHeading(() => 'Home')
         }
     }, [render])
     const handleOpenMenu = () => {
@@ -38,7 +38,7 @@ export default function Dashboard({render = 'home'}) {
     }
     const renderContent = () => {
         switch(render) {
-            case 'collection':
+            case 'collections':
                 return <Collection/>
             case 'profile':
                 return <Profile/>

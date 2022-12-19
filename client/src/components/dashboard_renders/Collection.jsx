@@ -1,30 +1,28 @@
 import React, {useState, useRef, useEffect} from 'react';
 import { Box } from '@mui/system';
-import { SpeedDial, SpeedDialIcon, Modal, Typography, TextField, Switch, FormControlLabel, FormGroup, Button } from '@mui/material';
+import { SpeedDial, SpeedDialIcon, Modal, Typography, TextField, Switch, FormControlLabel, FormGroup, Button, Fab } from '@mui/material';
 import {pageRenderStyles, modalFormStyle, modalBoxStyle} from '../../utils/render_styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCollection, getUserCollections, setUserCollections } from '../../features/collection/collectionSlice';
 import TextMultiSelect from '../TextMultiSelect';
 import ValidatedTextInput from '../ValidatedTextInput';
 import GridLayout from '../GridLayout';
+import Add from '@mui/icons-material/Add';
+import { collectionNameValidator, collectionDescriptionValidator } from '../../utils/validators';
+import CollectionEditModal from '../CollectionEditModal';
 
-const collectionNameValidator = (input = '') => {
-    console.log({input})
-    if (input.length <= 0) return {error: true, message: 'Collection name cannot be empty.'}
-
-    if (input.length > 50) return {error: true, message: 'Collection name must be under 50 characters long.'}
-    
-    return {error: false, message: ''}
-}
-
-const collectionDescriptionValidator = (input = '') => {
-    if (input.length > 500) return {error: true, message: 'Collection description must be under 500 characters long.'}
-
-    return {error: false, message: ''}
-}
 
 export default function Collection({}) {
     const [modalOpen, setModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+    const [editModalData, setEditModalData] = useState({
+        collection_description: '',
+        collection_id: '',
+        collection_name: '',
+        collection_visibility: false,
+        maintainers: [],
+        permissions: 'maintainer'
+    })
     const collectionNameRef = useRef('')
     const collectionNameErrorRef = useRef(true)
     const collectionDescriptionRef = useRef('')
@@ -44,11 +42,19 @@ export default function Collection({}) {
         }
         
     }, [])
+    console.log({userCollections})
     const openModal = () => {
         setModalOpen(() => true)
     }
     const handleModalClose = () => {
         setModalOpen(() => false)
+    }
+    const openEditModal = () => {
+        setEditModalOpen(() => true)
+        console.log('setting edit modal to open')
+    }
+    const handleEditModalClose = () => {
+        setEditModalOpen(() => false)
     }
     const handleCollectionVisibilityToggle = (e) => {
         collectionVisibilityRef.current = e.target.checked
@@ -69,34 +75,44 @@ export default function Collection({}) {
                 handleModalClose()
             })
             .catch(e => {
-
+                console.log({error: e})
             })
              
         }
-        console.log(collectionNameRef.current)
-        console.log(collectionDescriptionRef.current)
-        console.log(collectionVisibilityRef.current)
-        console.log(collectionMaintainersRef.current)    
         
     }
+    console.log({editModalOpen})
     return (
         <Box sx = {pageRenderStyles}>
-            <GridLayout labels = {userCollections.map((c = {}) => {
+            <GridLayout 
+            labels = {userCollections.map((c = {}) => {
                 return c.collection_name
-            })}/>
-            
-            <SpeedDial
+            })}
+            primaryActions = {userCollections.map((c = {}) => {
+                return () => {
+                    
+                }
+            })}
+            secondaryActions = {userCollections.map((c = {}) => {
+                return () => {
+                    setEditModalData(() => c)
+                    openEditModal()
+                }
+            })}
+            />
+            <Fab
             onClick={openModal}
             ariaLabel='add collection'
+            color = 'primary'
             sx = {{
                 position: 'absolute',
                 bottom: '2em',
                 right: '2em'
             }}
-            icon = {<SpeedDialIcon/>}
             >
-
-            </SpeedDial>
+                <Add/>
+            </Fab>
+            <CollectionEditModal open = {editModalOpen} onClose = {handleEditModalClose} collectionData = {editModalData}/>
             <Modal
             open = {modalOpen}
             onClose = {handleModalClose}
