@@ -1,91 +1,90 @@
-import InputGroup from "./InputGroup";
 import { useRef, useState, useEffect } from "react";
-import {motion} from 'framer-motion/dist/framer-motion';
-import { buttonVariant } from "../utils/animation_variants";
-import { Link } from "@mui/material";
+import { Button, CardContent, Divider, FormGroup, Link, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { loginUser, updateUserState } from "../features/auth/authSlice";
 import React from "react"
 import { useDispatch } from "react-redux";
-import Alert from "@mui/material/Alert";
+import { modalFormStyle, pageRenderStyles } from "../utils/render_styles";
+import {Box, Card} from "@mui/material";
+import ValidatedTextInput from "./ValidatedTextInput";
+import { usernameValidator } from "../utils/validators";
+import { triggerAlert } from "../features/alert/alertSlice";
 
 export default function Login() {
     const navigate = useNavigate();
-    let usernameRef = useRef({});
-    let passwordRef = useRef({});
+    let usernameRef = useRef('');
+    let usernameErrorRef = useRef(false);
+    let passwordRef = useRef('');
+    let passwordErrorRef = useRef(false);
     let dispatch = useDispatch();
-    const [authError, setAuthError] = useState(null)
-    const [authStatus, setAuthStatus] = useState(null)
-    const [userStatus, setUserStatus] = useState({})
-    const [alertOpen, setAlertState] = useState(false)
-    const [alertContent, setAlertContent] = useState('')
-    useEffect(() => {
-        if (authStatus === 'success') {
-            setAlertContent(() => 'Login success! Redirecting...')
-            dispatch(updateUserState(userStatus))
-            navigate('/home')
-        } else if (authStatus === 'failed') {
-            setAlertContent(() => authError)
-        }
-        if (authStatus === 'success' || authStatus === 'failed') {
-            setAlertState(true)
-        }
-    }, [authStatus])
-    const closeAlert = () => {
-        setAlertState(false)
-        setAlertContent('')
-        setAuthError(null)
-        setAuthStatus(null)
-    }
+
     const redirectToSignup = () => {
         navigate('/signup')
     }
     const onLoginSubmit = (e) => {
         e.preventDefault();
-        console.log(usernameRef.current.value);
-        console.log(passwordRef.current.value);
-        const username = usernameRef.current.value
-        const password = passwordRef.current.value
+        if (usernameErrorRef.current || passwordErrorRef.current) {
+            return;
+        }
+        const username = usernameRef.current
+        const password = passwordRef.current
         const params = {
             username,
             password
         }
         dispatch(loginUser(params))
         .then(res => {
-            console.log(res)
-            setAuthError(() => res.payload.auth_error)
-            setAuthStatus(() => res.payload.auth_status)
-            setUserStatus(() => res.payload.auth_user)
-            localStorage.setItem('token', res.payload.token)
+            const authError = res.payload.auth_error
+            const authStatus = res.payload.auth_status
+            const userStatus = res.payload.auth_user
+            if (authStatus === 'success') {
+                dispatch(updateUserState(userStatus))
+                dispatch(triggerAlert({message: 'Login success! Redirecting...', type: 'success'}))
+                localStorage.setItem('token', res.payload.token)
+            } else {
+                dispatch(triggerAlert({message: authError, type: 'error'}))
+            }
             return res.payload
         })
         .catch(e => {
-            console.log(e)
+            console.error(e)
         })
     }
     return (
-        <div className = 'landing'>
-            
-            <form className = 'login' onSubmit = {onLoginSubmit}>
-                <h2>Login</h2>
-                <InputGroup input_name='Username' input_type = 'text' input_id = 'username' input_ref = {usernameRef}/>
-                <InputGroup input_name ='Password' input_type = 'password' input_id = 'password' input_ref = {passwordRef}/>
-                <motion.button 
-                whileHover = 'hover'
-                initial = 'initial'
-                whileTap = 'click'
-                variants = {buttonVariant}
-                className = 'formButton'
-                type = 'submit'>Log in</motion.button>
-                {
-                    alertOpen &&
-                    <Alert severity = {authStatus === 'success'? 'success' : 'error'} onClose = {closeAlert}>
-                        {alertContent}
-                    </Alert>
-                }
-                <hr></hr>
-                <em>Don't have an account? Sign up <Link underline = 'always' color = 'inherit' onClick = {redirectToSignup} href='#'>here!</Link></em>
-            </form>
-        </div>
+        <>
+        <Box sx = {{...pageRenderStyles, justifyContent: 'center', width: 'calc(max(300px, 30vw))', alignSelf: 'center'}}>
+            <Card>
+                <CardContent sx = {{...pageRenderStyles, gap: 2}}>
+                    <Typography variant = 'h5' fontWeight='bold'>Login</Typography>
+                    <form onSubmit={onLoginSubmit}>
+                        <FormGroup sx = {{gap: 2}}>
+                        <ValidatedTextInput
+                        label = 'Username'
+                        validator = {usernameValidator}
+                        innerRef = {usernameRef}
+                        errorRef = {usernameErrorRef}
+                        required = {true}
+                        />
+                        <ValidatedTextInput
+                        label = 'Password'
+                        innerRef = {passwordRef}
+                        errorRef = {passwordErrorRef}
+                        required = {true}
+                        type = 'password'
+                        />
+                        <Button variant = 'contained' type = 'submit' sx = {{width: '100%'}}>Log in</Button>
+                        </FormGroup>
+                        
+                    </form>
+                    
+                    <Divider/>
+                    <Typography variant = 'body2' sx = {{alignSelf: 'center'}}>Don't have an account? Sign up <Link underline = 'always' color = 'inherit' onClick = {redirectToSignup} href='#'>here!</Link>
+                    </Typography>
+
+                </CardContent>
+            </Card>
+        </Box>
+        </>
+        
     );
 }

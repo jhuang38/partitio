@@ -29,7 +29,7 @@ export default class API {
         try {
             res = await fetch(request_url, req);
         } catch(e) {
-            console.log(e);
+            console.error(e);
         }
         const json_body = await res.json();
         return json_body;

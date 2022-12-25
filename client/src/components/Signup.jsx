@@ -1,90 +1,90 @@
 import InputGroup from "./InputGroup";
-import { useEffect, useRef, useState } from "react";
-import {motion} from 'framer-motion/dist/framer-motion';
-import { buttonVariant } from "../utils/animation_variants";
-import { Link } from "@mui/material";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Box, Card, CardContent, Typography, Divider, FormGroup, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { pageRenderStyles } from "../utils/render_styles";
 import {createNewUser} from "../features/auth/authSlice";
-import Alert from "@mui/material/Alert";
-import React from "react"
+import ValidatedTextInput from "./ValidatedTextInput";
+import { emailValidator, passwordValidator, usernameValidator } from "../utils/validators";
+import { triggerAlert } from "../features/alert/alertSlice";
 
 export default function Signup() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    let emailRef = useRef({});
-    let usernameRef = useRef({});
-    let passwordRef = useRef({});
-    const [registerState, setRegisterState] = useState(null)
-    const [registerError, setRegisterError] = useState('')
-    const [alertOpen, setAlertState] = useState(false)
-    const [alertContent, setAlertContent] = useState('')
-
-    useEffect(() => {
-        if (registerState) {
-
-        }
-        if (registerState === 'success' || registerState === 'failure') {
-            setAlertContent(registerState === 'success'? 'Succesfully registered!' : `Registration failed - ${registerError}`)
-            setAlertState(state => true)
-        }
-    }, [registerState])
-    const closeAlert = () => {
-        setAlertState(false)
-        setRegisterState(null)
-        setRegisterError('')
-        setAlertContent('')
-    }
+    let emailRef = useRef('');
+    let emailErrorRef = useRef(true);
+    let usernameRef = useRef('');
+    let usernameErrorRef = useRef(false);
+    let passwordRef = useRef('');
+    let passwordErrorRef = useRef(false);
     
     const redirectToLogin = () => {
         navigate('/login');
     }
     const onLoginSubmit = (e) => {
         e.preventDefault();
+        if (emailErrorRef.current || usernameErrorRef.current || passwordErrorRef.current) {
+            return;
+        }
         const body = {
-            email: emailRef.current.value,
-            username: usernameRef.current.value,
-            password: passwordRef.current.value
+            email: emailRef.current,
+            username: usernameRef.current,
+            password: passwordRef.current
         }
         dispatch(createNewUser(body))
             .then(res => {
-                console.log(res)
-                setRegisterState(res.payload.status)
-                setRegisterError(res.payload.error)
+                const registerStatus = res.payload.status;
+                const registerError = res.payload.error
+                if (registerStatus === 'success') {
+                    dispatch(triggerAlert({message: 'Succesfully registered!', type: 'success'}))
+                } else {
+                    dispatch(triggerAlert({message: `Registration failed - ${registerError}`, type: 'error'}))
+                }
                 return res.payload
             })
             .catch(e => {
-                console.log(e)
+                console.error(e)
             })
     }
     return (
-        <div className = 'landing'>
-            
-            <form className = 'login' onSubmit = {onLoginSubmit}>
-                <h2>Sign Up</h2>
-                <InputGroup input_name='Username' input_type ='text' input_id = 'username' input_ref = {usernameRef}/>
-                <InputGroup input_name='Email' input_type = 'text' input_id = 'email' input_ref = {emailRef}/>
-                <InputGroup input_name ='Password' input_type = 'password' input_id = 'password' input_ref = {passwordRef}/>
-                <motion.button
-                className = 'formButton' 
-                whileHover = 'hover'
-                initial = 'initial'
-                whileTap = 'click'
-                variants = {buttonVariant}
-                type = 'submit'>Sign Up</motion.button>
-                {
-                    alertOpen && 
-                    <Alert severity = {registerState === 'success'? 'success' : 'error'}
-                    onClose = {
-                        closeAlert
-                    }
-                    >
-                        {alertContent}
-                    </Alert>
-                }
-                <hr></hr>
-                <em>Already have an account? Log in <Link underline = 'always' color = 'inherit' onClick = {redirectToLogin} href = '#'>here!</Link></em>
-            </form>
-        </div>
+        <Box sx = {{...pageRenderStyles, justifyContent: 'center', width: 'calc(max(300px, 30vw))', alignSelf: 'center'}}>
+            <Card>
+                <CardContent sx = {{...pageRenderStyles, gap: 2}}>
+                    <Typography variant = 'h5' fontWeight='bold'>Sign Up</Typography>
+                    <form onSubmit = {onLoginSubmit}>
+                        <FormGroup sx = {{gap: 2}}>
+                            <ValidatedTextInput
+                            label = 'Username'
+                            validator = {usernameValidator}
+                            innerRef = {usernameRef}
+                            errorRef = {usernameErrorRef}
+                            required = {true}
+                            />
+                            <ValidatedTextInput
+                            label = 'Email'
+                            validator = {emailValidator}
+                            innerRef = {emailRef}
+                            errorRef = {emailErrorRef}
+                            required = {true}
+                            />
+                            <ValidatedTextInput
+                            label = 'Password'
+                            validator = {passwordValidator}
+                            innerRef = {passwordRef}
+                            errorRef = {passwordErrorRef}
+                            required = {true}
+                            type = 'password'
+                            />
+                            <Button variant = 'contained' type = 'submit'>Sign Up</Button>
+                        </FormGroup>
+                    </form>
+                    <Divider/>
+                    <Typography variant = 'body2' sx = {{alignSelf: 'center'}}>Already have an account? Log in 
+                        <Link underline = 'always' color = 'inherit' onClick = {redirectToLogin} href = '#'> here!</Link>
+                    </Typography>
+                </CardContent>
+            </Card>
+        </Box>
     );
 }

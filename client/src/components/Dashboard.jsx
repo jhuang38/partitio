@@ -1,33 +1,41 @@
-import { AppBar, Toolbar, Typography, Box, IconButton, Drawer } from "@mui/material"
+import { AppBar, Toolbar, Typography, Box, IconButton, Drawer, Snackbar, Alert } from "@mui/material"
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useRef, useState, useEffect } from "react"
 import MenuItems from "./MenuItems"
 import MenuIcon from "@mui/icons-material/Menu"
 import React from "react"
 import Collection from "./dashboard_renders/Collection"
-import Home from "./dashboard_renders/Home"
 import Profile from "./dashboard_renders/Profile"
 import { useDispatch, useSelector } from "react-redux";
 import {logOff} from '../features/auth/authSlice'
+import ProjectView from "./dashboard_renders/ProjectView";
+import { clearAlert } from "../features/alert/alertSlice";
+import NotFound from "./dashboard_renders/NotFound";
 
-export default function Dashboard({render = 'home'}) {
+export default function Dashboard({render = 'collections'}) {
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const state = useSelector(state => state)
+    let {cid} = useParams();
     const [drawerOpen, setDrawerState] = useState(false)
-    const [pageHeading, setPageHeading] = useState('Home')
+    const [pageHeading, setPageHeading] = useState('Collections')
     useEffect(() => {
         switch(render) {
             case 'collections':
-                setPageHeading(() => 'Collections')
+                setPageHeading(() => 'My Collections')
+                break
+            case 'shared':
+                setPageHeading(() => 'Shared with Me')
+                break
+            case 'project':
+                setPageHeading(() => 'Project')
                 break
             case 'profile':
                 setPageHeading(() => 'Profile')
                 break
             default:
-                setPageHeading(() => 'Home')
+                setPageHeading(() => 'Collections')
         }
     }, [render])
     const handleOpenMenu = () => {
@@ -39,11 +47,15 @@ export default function Dashboard({render = 'home'}) {
     const renderContent = () => {
         switch(render) {
             case 'collections':
-                return <Collection/>
+                return <Collection collectionType = 'user'/>
+            case 'shared':
+                return <Collection collectionType = 'shared'/>
+            case 'project':
+                return <ProjectView cid = {cid}/>
             case 'profile':
                 return <Profile/>
             default:
-                return <Home/>
+                return <NotFound/>
         }
     }
     const navigateFromMenu = (url) => {
@@ -53,17 +65,11 @@ export default function Dashboard({render = 'home'}) {
     const logoffUser = () => {
         dispatch(logOff())
         .then(e => {
-            console.log({state, e})
             navigate('/login')
         })
     }
     return (
         <>
-            <Box sx = {{
-            color: 'white',
-            position: 'sticky',
-            width: '100%'
-            }}>
             <AppBar sx = {{width: '100%', position: 'sticky'}}>
                 
                 <Toolbar sx = {{color: 'white'}}>
@@ -110,8 +116,6 @@ export default function Dashboard({render = 'home'}) {
                     
                 </Toolbar>
             </AppBar>
-            
-        </Box>
         {renderContent()}
         <Drawer
         anchor = 'left'
@@ -119,8 +123,8 @@ export default function Dashboard({render = 'home'}) {
         onClose = {handleCloseMenu}
         >
         <MenuItems 
-        items = {['Home', 'Collections']} 
-        actionMap = {[() => navigateFromMenu('/home'), () => navigateFromMenu('/collection')]}
+        items = {['My Collections', 'Shared with me']} 
+        actionMap = {[() => navigateFromMenu('/collections'), () => navigateFromMenu('/shared')]}
         ></MenuItems>
         </Drawer>
         </>

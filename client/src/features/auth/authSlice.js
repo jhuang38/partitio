@@ -50,13 +50,12 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(createNewUser.fulfilled, (state, action) => {
-            console.log({state, action})
+            // TODO - potentially add / move logic here
         })
         .addCase(loginUser.fulfilled, (state, action) => {
-            console.log({state, action})
+            // TODO - potentially add / move logic here
         })
         .addCase(logOff.fulfilled, (state, action) => {
-            console.log({state, action})
             localStorage.removeItem('token')
             state.user = null
         })

@@ -10,21 +10,36 @@ def add_collection():
     collection_description = json_body['collectionDescription']
     collection_visibility = json_body['collectionVisibility']
     collection_maintainers = json_body['collectionMaintainers']
+    collection_viewers = json_body['collectionViewers']
     collection_creator = json_body['collectionCreator']
     res = collection_manager.add_collection(
         collection_name=collection_name, 
         collection_creator=collection_creator,
         collection_description=collection_description, 
         collection_visibility=collection_visibility, 
-        collection_maintainers=collection_maintainers
+        collection_maintainers=collection_maintainers,
+        collection_viewers=collection_viewers
     )
     return jsonify(res)
 
 @collections.route('/get_user_collections', methods=['GET'])
 @login_required
 def get_user_collections():
+    """
+    this route gets collections where the given user is the owner.
+    """
     username = request.args.get('username')
     collections = collection_manager.get_user_collections(username=username)
+    return jsonify(collections=collections)
+
+@collections.route('/get_shared_collections', methods = ['GET'])
+@login_required
+def get_shared_collections():
+    """
+    this route gets collections where the user is either a maintainer or a viewer.
+    """
+    username = request.args.get('username')
+    collections = collection_manager.get_user_collections(username=username, query_type='shared')
     return jsonify(collections=collections)
 
 @collections.route('/edit_collection', methods=['PUT'])
@@ -37,6 +52,7 @@ def edit_collection():
     collection_name = json_body['collection_name']
     collection_visibility = json_body['collection_visibility']
     maintainers = json_body['maintainers']
+    viewers = json_body['viewers']
     username = json_body['username']
     updated = collection_manager.edit_collection(
         collection_description=collection_description,
@@ -44,6 +60,7 @@ def edit_collection():
         collection_name=collection_name,
         collection_visibility=collection_visibility,
         maintainers=maintainers,
+        viewers=viewers,
         username=username
     )
     return jsonify(updated)

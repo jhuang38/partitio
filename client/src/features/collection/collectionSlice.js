@@ -11,8 +11,14 @@ export const addCollection = createAsyncThunk(
 
 export const getUserCollections = createAsyncThunk(
     'collection/get-user-collections',
-    async (username) => {
-        const res = await collectionAPI.sendRequest('get_user_collections', 'GET', {username}, null, localStorage.getItem('token'))
+    async (payload) => {
+        const {username, collectionType} = payload
+        let res;
+        if (collectionType === 'shared') {
+            res = await collectionAPI.sendRequest('get_shared_collections', 'GET', {username}, null, localStorage.getItem('token'))
+        } else {
+            res = await collectionAPI.sendRequest('get_user_collections', 'GET', {username}, null, localStorage.getItem('token'))
+        }
         return res.collections
     }
 )
@@ -49,9 +55,9 @@ const collectionSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(addCollection.fulfilled, (state, action) => {
-            console.log({state, action})
             let dataAdded = action.payload.added
             dataAdded.maintainers = action.payload.maintainers
+            dataAdded.viewers = action.payload.viewers
             state.userCollections.push(dataAdded)
         })
         .addCase(editCollection.fulfilled, (state, action) => {
@@ -62,8 +68,6 @@ const collectionSlice = createSlice({
             newUserCollections.forEach((e = {}) => {
                 state.userCollections.push(e)
             })
-            
-            console.log({state, action})
         })
         .addCase(deleteCollection.fulfilled, (state, action) => {
             state.userCollections.splice(state.userCollections.findIndex((c = {}) => c.collection_id === action.payload.data.collection_id), 1)

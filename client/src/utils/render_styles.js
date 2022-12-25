@@ -1,6 +1,7 @@
 const pageRenderStyles = {
     display: 'flex',
     flexDirection: 'column',
+    height: `100%`,
     padding: 4
 }
 
@@ -23,4 +24,4 @@ const modalFormStyle = {
     gap: 2
 }
 
-export {pageRenderStyles, modalBoxStyle, modalFormStyle}
+export {pageRenderStyles, modalBoxStyle, modalFormStyle, }
