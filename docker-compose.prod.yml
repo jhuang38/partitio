@@ -1,0 +1,46 @@
+version: '3.7'
+
+services:
+  client:
+    build:
+      context: './client/'
+      dockerfile: Dockerfile.prod
+    ports: 
+      - 3000:80
+    volumes:
+      - ./client:/app
+    # networks:
+    #   - partitio
+  server:
+    build:
+      context: './server/'
+    environment:
+      - SERVER_PORT
+      - DB_URI
+      - FLASK_SECRET_KEY
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    volumes:
+      - ./server:/app
+    links:
+      - db
+    # networks:
+    #   - partitio
+  db:
+    build:
+      context: './db/'
+    environment:
+      - DB_URI
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - DB_PORT
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ./db:/app
+    # networks:
+    #   - partitio
+
+# networks:
+#   partitio:

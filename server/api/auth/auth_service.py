@@ -29,8 +29,6 @@ class Auth:
         check for existing username in users
         """
         user = self.db.session.query(User).filter((User.username == username)).first()
-        if not(user is None):
-            print(user.__dict__)
         return not(user is None)
 
     def create_user(self, username, email, password):
@@ -44,7 +42,7 @@ class Auth:
 
         return dict(status='success', error=None)
 
-    def login_user(self, username, email, password):
+    def login_user(self, username, email, password) -> dict:
         user = self.db.session.query(User).filter(User.username == username).first()
         login_status = False
         if user and self.check_passwords(password, user.password):
@@ -60,19 +58,16 @@ class Auth:
                 'email': user.email,
                 'uid': user.uid
             }
-        else:
-            print('login failed')
+        # else:
+        #     print('login failed')
 
         return dict(auth_status=auth_status, auth_error=auth_error, auth_user=auth_user)
     
-    def get_user_by_name(self, username):
+    def get_user_by_name(self, username) -> User:
         return self.db.session.query(User).filter(User.username == username).first()
     
-    def get_user_status(self, username):
+    def get_user_status(self, username) -> dict:
         user = self.db.session.query(User).filter(User.username == username).first()
-        print(user)
-        print("is active:", user.is_active)
-        print("is authenticated:", user.is_authenticated)
         return dict(active=user.is_active, authenticated=user.is_authenticated)
 
     def logoff_user(self):

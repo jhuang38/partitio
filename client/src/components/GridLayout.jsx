@@ -14,7 +14,7 @@ const Item = styled(Paper)(({ theme }) => ({
     alignItems: 'center'
   }));
 
-export default function GridLayout({labels = [], primaryActions = [], secondaryActions=[], gridWith = 4}) {
+export default function GridLayout({labels = [], primaryActions = [], secondaryActions=[]}) {
     return (
         <Grid container spacing = {2}>
             {

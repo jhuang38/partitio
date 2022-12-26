@@ -10,7 +10,6 @@ const createOption = (input) => ({label: input, value: input})
 export default function TextMultiSelect({placeholder = 'Type some stuff...', innerRef = {}, prevOptions = [], isDisabled = false, optionValidator = (val='') => true}) {
     const [inputValue, setInputValue] = useState('')
     const [addedOptions, setAddedOptions] = useState(prevOptions)
-    console.log({addedOptions})
     const handleKeyDown = e => {
         if (!inputValue || !optionValidator(inputValue)) return;
         switch (e.key) {

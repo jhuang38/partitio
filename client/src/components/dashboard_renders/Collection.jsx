@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from 'react';
 import { Box } from '@mui/system';
-import { SpeedDial, SpeedDialIcon, Modal, Typography, TextField, Switch, FormControlLabel, FormGroup, Button, Fab } from '@mui/material';
+import { Modal, Typography, Switch, FormControlLabel, FormGroup, Button, Fab } from '@mui/material';
 import {pageRenderStyles, modalFormStyle, modalBoxStyle} from '../../utils/render_styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCollection, getUserCollections, setUserCollections } from '../../features/collection/collectionSlice';
@@ -10,9 +10,12 @@ import GridLayout from '../GridLayout';
 import Add from '@mui/icons-material/Add';
 import { collectionNameValidator, collectionDescriptionValidator } from '../../utils/validators';
 import CollectionEditModal from '../CollectionEditModal';
+import { useNavigate } from 'react-router-dom';
+import { triggerAlert } from '../../features/alert/alertSlice';
 
 
-export default function Collection({}) {
+export default function Collection({collectionType = 'user'}) {
+    const navigate = useNavigate();
     const [modalOpen, setModalOpen] = useState(false)
     const [editModalOpen, setEditModalOpen] = useState(false)
     const [editModalData, setEditModalData] = useState({
@@ -21,6 +24,7 @@ export default function Collection({}) {
         collection_name: '',
         collection_visibility: false,
         maintainers: [],
+        viewers: [],
         permissions: 'maintainer'
     })
     const collectionNameRef = useRef('')
@@ -29,20 +33,19 @@ export default function Collection({}) {
     const collectionDescriptionErrorRef = useRef(true)
     const collectionVisibilityRef = useRef(false)
     const collectionMaintainersRef = useRef([])
+    const collectionViewersRef = useRef([])
     const dispatch = useDispatch()
-    const currentUser = useSelector(state => state.auth.user)
-    const userCollections = useSelector(state => state.collection.userCollections)
+    const currentUser = useSelector(state => state.auth.user) || {}
+    const userCollections = useSelector(state => state.collection.userCollections) || []
     useEffect(() => {
         if (currentUser && currentUser.username) {
-            dispatch(getUserCollections(currentUser.username))
+            dispatch(getUserCollections({username: currentUser.username, collectionType}))
             .then(data => {
-                console.log({data})
                 dispatch(setUserCollections(data.payload))
             })
         }
         
-    }, [])
-    console.log({userCollections})
+    }, [collectionType])
     const openModal = () => {
         setModalOpen(() => true)
     }
@@ -51,7 +54,6 @@ export default function Collection({}) {
     }
     const openEditModal = () => {
         setEditModalOpen(() => true)
-        console.log('setting edit modal to open')
     }
     const handleEditModalClose = () => {
         setEditModalOpen(() => false)
@@ -67,21 +69,25 @@ export default function Collection({}) {
                 collectionDescription: collectionDescriptionRef.current,
                 collectionVisibility: collectionVisibilityRef.current,
                 collectionMaintainers: collectionMaintainersRef.current,
+                collectionViewers: collectionViewersRef.current,
                 collectionCreator: currentUser
             }
             dispatch(addCollection(payload))
             .then(res => {
-                console.log({res})
+                if (!res.ok) {
+                    return;
+                }
+                dispatch(triggerAlert({message: `Collection ${collectionNameRef.current} succesfully created.`, type: 'success'}))
+            })
+            .then(() => {
                 handleModalClose()
             })
             .catch(e => {
-                console.log({error: e})
             })
              
         }
         
     }
-    console.log({editModalOpen})
     return (
         <Box sx = {pageRenderStyles}>
             <GridLayout 
@@ -90,7 +96,7 @@ export default function Collection({}) {
             })}
             primaryActions = {userCollections.map((c = {}) => {
                 return () => {
-                    
+                    navigate(`/project/${c.collection_id}`)
                 }
             })}
             secondaryActions = {userCollections.map((c = {}) => {
@@ -100,18 +106,21 @@ export default function Collection({}) {
                 }
             })}
             />
-            <Fab
-            onClick={openModal}
-            ariaLabel='add collection'
-            color = 'primary'
-            sx = {{
-                position: 'absolute',
-                bottom: '2em',
-                right: '2em'
-            }}
-            >
-                <Add/>
-            </Fab>
+            {
+                collectionType === 'shared' || <Fab
+                onClick={openModal}
+                ariaLabel='add collection'
+                color = 'primary'
+                sx = {{
+                    position: 'fixed',
+                    bottom: '2em',
+                    right: '2em'
+                }}
+                >
+                    <Add/>
+                </Fab>
+            }
+            
             <CollectionEditModal open = {editModalOpen} onClose = {handleEditModalClose} collectionData = {editModalData}/>
             <Modal
             open = {modalOpen}
@@ -124,7 +133,6 @@ export default function Collection({}) {
                     </Typography>
                     <form onSubmit = {handleCollectionSubmit} style = {modalFormStyle}>
                         <FormGroup sx = {modalFormStyle}>
-                        {/* <TextField inputRef ={ collectionNameRef} label = 'Collection Name'></TextField> */}
                         <ValidatedTextInput 
                         label = 'Collection Name' 
                         innerRef = {collectionNameRef} 
@@ -147,7 +155,20 @@ export default function Collection({}) {
                         <TextMultiSelect
                         placeholder = 'Add maintainers...'
                         innerRef={collectionMaintainersRef}
+                        optionValidator = {(input) => {
+                            return currentUser && input !== currentUser.username
+                        }}
                         />
+
+                        <TextMultiSelect
+                        placeholder = 'Add viewers...'
+                        innerRef = {collectionViewersRef}
+                        optionValidator = {(input) => {
+                            return currentUser && input !== currentUser.username
+                        }}
+                        />
+
+
                         <Button type = 'submit' variant = 'contained'>Submit</Button>
                         
                         </FormGroup>

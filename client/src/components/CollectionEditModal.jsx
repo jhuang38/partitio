@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { editCollection, deleteCollection } from "../features/collection/collectionSlice";
 import TextMultiSelect from "./TextMultiSelect";
 import ValidatedTextInput from "./ValidatedTextInput";
+import { triggerAlert } from "../features/alert/alertSlice";
 
 export default function CollectionEditModal ({open, onClose, collectionData = {
     collection_description: '',
@@ -14,43 +15,52 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
     collection_name: '',
     is_public: false,
     maintainers: [],
+    viewers: [],
     permission: 'maintainer'
     }}) {
     const descriptionRef = useRef({})
     const nameRef = useRef({})
     const visibilityRef = useRef({})
-    const maintainersRef = useRef({})
+    const maintainersRef = useRef([])
+    const viewersRef = useRef([])
     const dispatch = useDispatch()
     const currentUser = useSelector(state => state.auth.user)
 
-    console.log(collectionData.collection_visibility)
+
     descriptionRef.current = collectionData.collection_description
     nameRef.current = collectionData.collection_name
     visibilityRef.current = collectionData.is_public
     maintainersRef.current = collectionData.maintainers
+    viewersRef.current = collectionData.viewers
 
     const descriptionErrorRef = useRef(true)
     const nameErrorRef = useRef(true)
 
     const disabled = collectionData.permission !== 'owner'
     const handleVisibilityToggle = (e) => {
-        console.log(e.target)
         visibilityRef.current = e.target.checked
     }
     const handleEditSubmit = (e) => {
         e.preventDefault()
         if (!nameErrorRef.current && !descriptionErrorRef.current && currentUser && currentUser.username) {
-            console.log('success')
+            // TODO - look more into data shape issue with maintainers/viewers ref - map workaround currently in place
             dispatch(editCollection({
                 collection_description: descriptionRef.current,
                 collection_id: collectionData.collection_id,
                 collection_name: nameRef.current,
                 collection_visibility: visibilityRef.current,
-                maintainers: maintainersRef.current,
+                maintainers: maintainersRef.current.map(e => (typeof e === 'string'? {label: e, value: e} : e)),
+                viewers: viewersRef.current.map(e => (typeof e === 'string'? {label: e, value: e} : e)),
                 username: currentUser.username
             }))
             .then(res => {
-                console.log({res})
+                if (!res.ok) {
+                    return res;
+                }
+                dispatch(triggerAlert({message: `Collection ${nameRef.current} succesfully updated.`, type: 'success'}))
+                return res
+            })
+            .then(() => {
                 onClose()
             })
         }
@@ -61,7 +71,13 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
             username: currentUser.username
         }))
         .then(res => {
-            console.log({res})
+            if (!res.ok) {
+                return res;
+            }
+            dispatch(triggerAlert({message: `Collection ${nameRef.current} succesfully deleted.`, type: 'success'}))
+            return res
+        })
+        .then(res => {
             onClose()
         })
     }
@@ -98,7 +114,7 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
                         >
 
                         </ValidatedTextInput>
-                        <FormControlLabel control = {<Switch onChange = {handleVisibilityToggle} label = 'Public' disabled = {disabled} checked = {visibilityRef.current}/>} label = 'Public'/>
+                        <FormControlLabel control = {<Switch onChange = {handleVisibilityToggle} label = 'Public' disabled = {disabled} defaultChecked = {visibilityRef.current}/>} label = 'Public'/>
                         <TextMultiSelect
                         placeholder = 'Edit maintainers...'
                         innerRef={maintainersRef}
@@ -107,6 +123,16 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
                         optionValidator = {(input) => {
                                 return currentUser && input !== currentUser.username
                             }}
+                        />
+
+                        <TextMultiSelect
+                        placeholder = 'Edit viewers...'
+                        innerRef={viewersRef}
+                        isDisabled = {disabled}
+                        prevOptions = {viewersRef.current.map((o) => ({label: o, value: o}))}
+                        optionValidator = {(input) => {
+                            return currentUser && input !== currentUser.username
+                        }}
                         />
                         <Button type = 'submit' variant = 'contained' disabled = {disabled}>Edit</Button>
                         <Button color = 'error' variant = 'contained' disabled = {disabled} onClick = {handleCollectionDelete}>Delete Collection</Button>

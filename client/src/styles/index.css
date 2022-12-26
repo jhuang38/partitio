@@ -3,11 +3,33 @@
   font-family: 'Poppins' !important;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 html {
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
+  background-color: #F9F5FF;
+  overflow-x: hidden;
 }
 
 body {
@@ -15,6 +37,7 @@ body {
   width: 100%;
   padding: 0;
   margin: 0;
+  background-color: #F9F5FF;
 }
 
 #root {
@@ -53,84 +76,5 @@ main {
       -ms-flex-direction: column;
           flex-direction: column;
   width: 100%;
-}
-
-.login {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
-  gap: 1.5em;
-  padding: 1em;
-  width: calc(max(300px, 30vw));
-}
-
-.login .formButton {
-  border: 0.01em solid #000000;
-  border-radius: 0.5em;
-  padding: 0.5em;
-  background-color: #998FC7;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.login hr {
-  border-top: 1px solid #bbb;
-}
-
-.login em {
-  margin: 0;
-  text-align: center;
-}
-
-.inputgroup {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  gap: 0.25em;
-}
-
-.inputgroup input {
-  padding: 0.5em;
-  border-radius: 0.25em;
-  border: 0.01em solid #000000;
-}
-
-.landing {
-  background-color: #FFFFFF;
-  -webkit-box-shadow: 0.1em 0.1em 0.1em 0.1em #000000;
-          box-shadow: 0.1em 0.1em 0.1em 0.1em #000000;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
-  -webkit-box-pack: center;
-      -ms-flex-pack: center;
-          justify-content: center;
-  padding: 2em;
-  border-radius: 1em;
-  gap: 1em;
-}
-
-.landing * {
-  margin: 0;
 }
 /*# sourceMappingURL=index.css.map */

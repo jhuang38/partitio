@@ -53,7 +53,8 @@ class Collection(Base):
     description = Column(String(500))
     is_public = Column(Boolean, unique=False,default=False)
 
-    perm_map = relationship("UserCollectionMap", back_populates='collection')
+    perm_map = relationship("UserCollectionMap", back_populates='collection', cascade="all, delete")
+    links = relationship("Link", back_populates="collection", cascade="all, delete")
 
 class UserCollectionMap(Base):
     __tablename__ = 'user_collection_map'
@@ -65,6 +66,17 @@ class UserCollectionMap(Base):
     collection = relationship('Collection', back_populates = 'perm_map')
     user = relationship('User', back_populates = 'collection_mapping')
 
+class Link(Base):
+    __tablename__ = 'links'
+    link_id = Column(String(64), primary_key=True)
+    link_name = Column(String(100))
+    link_description = Column(String(500))
+    link_url = Column(String(2048))
+    collection_id = Column(String(64), ForeignKey('collections.collection_id'))
+    last_updated = Column(DateTime, default=datetime.datetime.now())
+    last_updated_by = Column(String(20))
+
+    collection = relationship('Collection', back_populates = 'links')
 
 session_maker = sessionmaker(bind=create_engine(os.environ.get('DB_URI')))
 

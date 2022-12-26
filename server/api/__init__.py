@@ -2,6 +2,7 @@ from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from models import User
 from flask_bcrypt import check_password_hash
 import jwt
@@ -10,11 +11,13 @@ import logging
 import os
 
 db = SQLAlchemy()
+socketio = SocketIO()
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
 
 from api.auth import auth
 from api.collections import collections
+from api.project import projects
 
 services = Blueprint(name='api', import_name='api', url_prefix='/api')
 
@@ -35,11 +38,13 @@ def create_app():
     # register blueprints
     services.register_blueprint(auth)
     services.register_blueprint(collections)
+    services.register_blueprint(projects)
     app.register_blueprint(services)
     
 
     db.init_app(app)
     login_manager.init_app(app)
+    socketio.init_app(app, cors_allowed_origins="*")
 
     return app
 
@@ -65,7 +70,6 @@ def load_user_req(request):
                 return user
         except (Exception) as e:
             print(e)
-            pass
     # try regular login
     username_arg = request.args.get('username')
     pwd_arg = request.args.get('password')

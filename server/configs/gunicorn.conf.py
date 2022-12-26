@@ -1,4 +1,5 @@
 import os
+import eventlet
 
 bind = f"0.0.0.0:{os.environ.get('SERVER_PORT')}"
 reload = True
