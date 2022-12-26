@@ -70,7 +70,6 @@ def load_user_req(request):
                 return user
         except (Exception) as e:
             print(e)
-            pass
     # try regular login
     username_arg = request.args.get('username')
     pwd_arg = request.args.get('password')

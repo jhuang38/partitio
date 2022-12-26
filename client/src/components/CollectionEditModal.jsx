@@ -54,6 +54,9 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
                 username: currentUser.username
             }))
             .then(res => {
+                if (!res.ok) {
+                    return res;
+                }
                 dispatch(triggerAlert({message: `Collection ${nameRef.current} succesfully updated.`, type: 'success'}))
                 return res
             })
@@ -68,6 +71,9 @@ export default function CollectionEditModal ({open, onClose, collectionData = {
             username: currentUser.username
         }))
         .then(res => {
+            if (!res.ok) {
+                return res;
+            }
             dispatch(triggerAlert({message: `Collection ${nameRef.current} succesfully deleted.`, type: 'success'}))
             return res
         })

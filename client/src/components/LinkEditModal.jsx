@@ -43,16 +43,19 @@ export default function LinkEditModal({open, onClose, linkData = {
         }
         onDeleteSubmit(payload)
     }
+
+    // note: date timezones are just taken as zulu in database, Z must be manually added to display
     return (
         <Modal open = {open} onClose = {onClose} disablePortal = {true}>
             <Box sx = {modalBoxStyle}>
-                <Typography variant = 'h5'>Edit Link</Typography>
+                <Typography variant = 'h5' sx = {{fontWeight: 'bold'}}>Edit Link</Typography>
                 <Typography variant = 'string'>Edit or delete a link.</Typography>
                 <form onSubmit={handleEditSubmit} style = {modalFormStyle}>
                     <FormGroup sx = {modalFormStyle}>
                         <ValidatedTextInput label = 'Link Name' validator={linkNameValidator} innerRef = {linkNameRef} errorRef = {linkNameErrRef} required = {true}/>
                         <ValidatedTextInput label = 'Link Description' validator = {linkDescriptionValidator} innerRef = {linkDescRef} errorRef = {linkDescErrRef} required = {false} multiline = {true}/>
                         <ValidatedTextInput label = 'Link URL' validator = {linkURLValidator} innerRef = {linkUrlRef} errorRef = {linkUrlErrRef} required = {true}/>
+                        <Typography variant = 'body1'>Last edited on {(new Date(linkData.last_updated + 'Z')).toLocaleString()} by {linkData.last_updated_by}</Typography>
                         <Button type = 'submit' variant = 'contained'>Edit link</Button>
                         <Button color = 'error' variant = 'contained' onClick = {handleDeleteSubmit}>Delete link</Button>
                     </FormGroup>

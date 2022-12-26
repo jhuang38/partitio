@@ -14,4 +14,5 @@ COPY . .
 # RUN pip install alembic 1.8.1
 RUN python3 setup.py install
 
-RUN cd models && alembic upgrade head
+# note - run docker exec -it {container} bash and run the following command to set up tables
+# RUN cd models && alembic upgrade head

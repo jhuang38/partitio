@@ -11,7 +11,11 @@ import { useSelector, useDispatch } from "react-redux";
 import LinkListRender from "../LinkListRender";
 import { receiveAlert, triggerAlert } from "../../features/alert/alertSlice";
 
-const socket = io(server_url.origin)
+const socket = io(server_url.origin, {
+    extraHeaders: {
+        Authorization: `Bearer ${localStorage.getItem('token') || ''}`
+    }
+})
 
 export default function ProjectEditorView({name='', description='', links=[], cid = ''}) {
     const user = useSelector(state => state.auth.user)

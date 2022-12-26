@@ -1,10 +1,35 @@
 from api.project import projects, project_manager
 from api import socketio
-from flask_socketio import emit, join_room, leave_room, send
+from flask_socketio import emit, join_room, leave_room, disconnect
 from flask import jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
+from api.auth import auth_service
 import jwt
 import os
+import functools
+
+# decorator to authenticate socketio routes
+def authenticated_only(f):
+    @functools.wraps(f)
+    def wrapped(*args, **kwargs):
+        # auth_headers = request.headers.get('Authorization', '').split()
+        # if len(auth_headers) != 2:
+        #     return False
+        # try:
+        #     token = jwt.decode(auth_headers[1], os.environ.get('FLASK_SECRET_KEY'), algorithms='HS256')
+        #     jwt_username = token['username']
+        #     user = auth_service.get_user_by_name(jwt_username)
+        #     if not user:
+        #         return False
+
+        # except Exception as e:
+        #     print('socketio exception', e)
+        #     return False
+        # if not current_user.is_authenticated:
+        #     disconnect()
+        #     return False
+        return f(*args, **kwargs)
+    return wrapped
 
 @projects.route('/get_project_view', methods=['GET'])
 @login_required
@@ -34,12 +59,13 @@ def emit_update(cid='', prev_links=[]):
     emit('links updated', link_data, to=cid)
 
 @socketio.on('join project room')
+@authenticated_only
 def join_project_room(payload):
     cid = payload['cid']
-    print(f"joining room {cid}")
     join_room(room=cid)
 
 @socketio.on('link added')
+@authenticated_only
 def add_new_link(payload):
     cid = payload['cid']
     username = payload['username']
@@ -59,6 +85,7 @@ def add_new_link(payload):
     emit_update(cid=cid, prev_links=prev_links)
 
 @socketio.on('link edited')
+@authenticated_only
 def edit_link(payload):
     cid = payload['cid']
     edited_by = payload['username']
@@ -80,6 +107,7 @@ def edit_link(payload):
     emit_update(cid=cid, prev_links=prev_links)
 
 @socketio.on('link deleted')
+@authenticated_only
 def delete_link(payload):
     cid = payload['cid']
     link_id = payload['link_id']
@@ -96,5 +124,4 @@ def delete_link(payload):
 @socketio.on('exit')
 def exit(payload):
     room = payload['cid']
-    print(f"exiting room {room}")
     leave_room(room=room)

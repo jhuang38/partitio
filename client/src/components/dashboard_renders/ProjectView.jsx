@@ -28,7 +28,7 @@ export default function ProjectView({cid = ''}) {
             .then(res => {
                 return res.payload;
             })
-            .then(data => {
+            .then((data = {}) => {
                 if (data.editable) {
                     setViewType(() => 'edit')
                     // establish ws connection

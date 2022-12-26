@@ -26,12 +26,16 @@ const projectSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(getProjectView.fulfilled, (state, action) => {
-            if (action.payload.viewable) {
-                state.name = action.payload.name
-                state.description = action.payload.description
-                state.cid = action.payload.cid
-                state.links = action.payload.links
+            if (!action.payload) {
+                return
             }
+            if (!action.payload.viewable) {
+                return
+            }
+            state.name = action.payload.name
+            state.description = action.payload.description
+            state.cid = action.payload.cid
+            state.links = action.payload.links
         })
     }
 })

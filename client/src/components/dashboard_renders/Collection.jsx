@@ -35,8 +35,8 @@ export default function Collection({collectionType = 'user'}) {
     const collectionMaintainersRef = useRef([])
     const collectionViewersRef = useRef([])
     const dispatch = useDispatch()
-    const currentUser = useSelector(state => state.auth.user)
-    const userCollections = useSelector(state => state.collection.userCollections)
+    const currentUser = useSelector(state => state.auth.user) || {}
+    const userCollections = useSelector(state => state.collection.userCollections) || []
     useEffect(() => {
         if (currentUser && currentUser.username) {
             dispatch(getUserCollections({username: currentUser.username, collectionType}))
@@ -74,13 +74,15 @@ export default function Collection({collectionType = 'user'}) {
             }
             dispatch(addCollection(payload))
             .then(res => {
+                if (!res.ok) {
+                    return;
+                }
                 dispatch(triggerAlert({message: `Collection ${collectionNameRef.current} succesfully created.`, type: 'success'}))
             })
             .then(() => {
                 handleModalClose()
             })
             .catch(e => {
-                console.error(e)
             })
              
         }

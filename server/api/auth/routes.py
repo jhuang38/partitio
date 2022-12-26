@@ -58,11 +58,14 @@ def login():
                 logout_user()
         except Exception as e:
             print('exception', e)
-            # logout_user()
     login_status = auth_service.login_user(username, email, password)
     if login_status['auth_status'] == 'success':
-        print('regular login')
-        token = jwt.encode({'username': login_status['auth_user']['username'], 'uid': login_status['auth_user']['uid'], 'email': login_status['auth_user']['email'], 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)}, os.environ.get('FLASK_SECRET_KEY'), algorithm='HS256')
+        token = jwt.encode({
+            'username': login_status['auth_user']['username'], 
+            'uid': login_status['auth_user']['uid'], 
+            'email': login_status['auth_user']['email'], 
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+        }, os.environ.get('FLASK_SECRET_KEY'), algorithm='HS256')
         return jsonify({
             'auth_status': login_status['auth_status'],
             'auth_error': login_status['auth_error'],
@@ -80,6 +83,7 @@ def test_session():
 def get_current_user():
     print(current_user)
     print(current_user.is_anonymous)
+    print(current_user.is_authenticated)
     return jsonify(is_auth=current_user.is_authenticated)
 
 @auth.route('/logout', methods=['POST'])
@@ -87,13 +91,11 @@ def get_current_user():
 def logout_user():
     try:
         response = auth_service.logoff_user()
-        print('logout success')
         return jsonify(response)
     except Exception as e:
         response = {
             'status': 'fail',
             'error': str(e)
         }
-        print('logout failed')
         return jsonify(response)
     

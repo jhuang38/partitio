@@ -55,6 +55,12 @@ const collectionSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(addCollection.fulfilled, (state, action) => {
+            if (!action.payload) {
+                return
+            }
+            if (!action.payload.added) {
+                return
+            }
             let dataAdded = action.payload.added
             dataAdded.maintainers = action.payload.maintainers
             dataAdded.viewers = action.payload.viewers
