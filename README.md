@@ -21,7 +21,7 @@ The stack:
 To see the full list of dependencies, see `package.json` in client and `setup.py` in server and db.
 
 ## Demo
-Page deployment is currently being fixed, so unfortunately a demo is not avaliable at this time. If you want to run the page locally however, follow the instructions below.
+See http://ec2-35-89-83-141.us-west-2.compute.amazonaws.com for a demo.
 
 ## Overall thoughts
 Overall, I think this project turned out fairly well. I was able to apply lots of what I learned as a Software Dev at BMO to this project, including Docker, Flask, and Postgres. Moreover, it was exciting to implement features like the real-time editing and authentication, as I was able to actively see the things I was learning in action. However, I definitely think there is lots of room for improvement, which I will keep in mind with further work on this project and for my future projects.
