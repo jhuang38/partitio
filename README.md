@@ -21,10 +21,11 @@ The stack:
 To see the full list of dependencies, see `package.json` in client and `setup.py` in server and db.
 
 ## Demo
-Page is currently up on http://ec2-35-91-188-11.us-west-2.compute.amazonaws.com/. There is a https version, but the functionality is broken due to the SSL certificate being self signed.
+Page deployment is currently being fixed, so unfortunately a demo is not avaliable at this time. If you want to run the page locally however, follow the instructions below.
 
 ## Overall thoughts
 Overall, I think this project turned out fairly well. I was able to apply lots of what I learned as a Software Dev at BMO to this project, including Docker, Flask, and Postgres. Moreover, it was exciting to implement features like the real-time editing and authentication, as I was able to actively see the things I was learning in action. However, I definitely think there is lots of room for improvement, which I will keep in mind with further work on this project and for my future projects.
+
 ## Running Locally
 1. Pull this repo from github.com.
 2. In the root folder, add a `.env` file and refer to the Environment Variables section below for setup.
